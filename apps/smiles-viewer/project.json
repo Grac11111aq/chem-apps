@@ -1,0 +1,22 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "smiles-viewer",
+  "projectType": "application",
+  "sourceRoot": "apps/smiles-viewer",
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bun --watch server/src/index.ts",
+        "cwd": "apps/smiles-viewer"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bun server/src/index.ts",
+        "cwd": "apps/smiles-viewer"
+      }
+    }
+  }
+}

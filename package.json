@@ -2,12 +2,18 @@
   "name": "@chem-apps/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "nx": "nx"
+  },
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.1",
+    "zod": "^3.24.1"
+  },
   "devDependencies": {
     "@nx/js": "22.3.3",
     "@nx/workspace": "22.3.3",
-    "nx": "22.3.3"
+    "nx": "22.3.3",
+    "typescript": "^5.9.3"
   }
 }

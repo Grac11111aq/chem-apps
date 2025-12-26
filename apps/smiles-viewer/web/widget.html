@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SMILES Viewer</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        background: radial-gradient(circle at top, #f3f7ff 0%, #f7f7f7 40%, #ffffff 100%);
+        color: #1c1c1c;
+      }
+      body {
+        margin: 0;
+        padding: 16px;
+      }
+      .container {
+        display: grid;
+        gap: 12px;
+        align-items: start;
+      }
+      .title {
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #4f5d7a;
+      }
+      .smiles {
+        padding: 10px 12px;
+        background: #101828;
+        color: #e0e7ff;
+        border-radius: 10px;
+        font-size: 12px;
+        line-height: 1.4;
+        word-break: break-all;
+      }
+      .canvas-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 12px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 12px 30px rgba(19, 34, 66, 0.12);
+        min-height: 260px;
+      }
+      #smiles-canvas {
+        max-width: 100%;
+      }
+      .error {
+        padding: 12px;
+        border-radius: 12px;
+        background: #fff4f4;
+        color: #7d1a1a;
+        border: 1px solid #ffc7c7;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="title">SMILES Viewer</div>
+      <div id="smiles-text" class="smiles">(waiting for SMILES)</div>
+      <div class="canvas-wrap">
+        <canvas id="smiles-canvas" width="480" height="260"></canvas>
+      </div>
+      <div id="error" class="error" hidden></div>
+    </div>
+
+    <script src="https://unpkg.com/smiles-drawer@2.0.1/dist/smiles-drawer.min.js"></script>
+    <script>
+      const canvasId = "smiles-canvas";
+      const errorEl = document.getElementById("error");
+      const smilesTextEl = document.getElementById("smiles-text");
+
+      function getSmilesPayload() {
+        const openai = window.openai || {};
+        return openai.toolOutput || openai.toolInput || openai.data || {};
+      }
+
+      function showError(message) {
+        errorEl.textContent = message;
+        errorEl.hidden = false;
+      }
+
+      function clearError() {
+        errorEl.textContent = "";
+        errorEl.hidden = true;
+      }
+
+      function renderSmiles(smiles) {
+        if (!smiles || !smiles.trim()) {
+          showError("SMILESが空です。入力を確認してください。");
+          return;
+        }
+
+        smilesTextEl.textContent = smiles;
+        clearError();
+
+        try {
+          SmilesDrawer.parse(
+            smiles,
+            function (tree) {
+              const drawer = new SmilesDrawer.Drawer({ width: 480, height: 260 });
+              drawer.draw(tree, canvasId, "light", false);
+            },
+            function (error) {
+              showError("描画に失敗しました: " + error.message);
+            }
+          );
+        } catch (err) {
+          showError("描画に失敗しました: " + err.message);
+        }
+      }
+
+      function boot() {
+        const payload = getSmilesPayload();
+        renderSmiles(payload.smiles);
+      }
+
+      window.addEventListener("openai:set_globals", function () {
+        boot();
+      });
+
+      boot();
+    </script>
+  </body>
+</html>
